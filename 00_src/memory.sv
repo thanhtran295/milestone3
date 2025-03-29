@@ -1,6 +1,6 @@
 module memory #(
-    parameter   ADDR_W = 32
-    parameter   ADDR_S = 512
+    parameter   ADDR_W = 32,
+    parameter   ADDR_S = 512,
     parameter   DATA_W = 32
 )
 (
