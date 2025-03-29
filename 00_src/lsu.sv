@@ -13,7 +13,13 @@ module lsu (
     output logic [31:0] o_io_lcd,
     input  logic [31:0] i_io_sw
 );
+    logic [31:0] aligned_addr;
+    logic [1:0]  byte_offset;
 
+    logic [31:0] w_data; 
+    logic [31:0] r_data;
+    logic [3:0]  mem_bmask; 
+    logic [31:0] reg_switch; 
 //Instant memory model 
 memory dmem_0 (
         .i_clk         (i_clk), 
@@ -25,12 +31,6 @@ memory dmem_0 (
         .o_rdata       (o_ld_data)
 );
 
-    logic [31:0] aligned_addr;
-    logic [1:0]  byte_offset;
-
-    logic [31:0] w_data; 
-    logic [31:0] r_data;
-    logic [3:0]  mem_bmask; 
 
     assign aligned_addr = {i_lsu_addr[31:2], 2'b00};
     assign byte_offset  = i_lsu_addr[1:0];
@@ -75,13 +75,14 @@ memory dmem_0 (
             o_io_lcd  <= 0;
             for (int i = 0; i < 2; i++) o_io_hex[i] <= 0;
         end else if (i_lsu_wren) begin
-            (i_lsu_addr >= 32'h1000_0000 && i_lsu_addr <= 32'h1000_0FFF) begin
+            if ((i_lsu_addr >= 32'h1000_0000) && (i_lsu_addr <= 32'h1000_0FFF)) begin
                 case (i_lsu_addr)
                     32'h1000_0000: o_io_ledr <= i_st_data;
                     32'h1000_1000: o_io_ledg <= i_st_data;
                     32'h1000_2000: o_io_hex[0] <= i_st_data[6:0];
                     32'h1000_3000: o_io_hex[1] <= i_st_data[6:0];
-                    32'h1000_4000: o_io_lcd <= i_st_data;
+                    32'h1000_4000: o_io_lcd   <= i_st_data;
+                    32'h1001_0000: reg_switch <= i_io_sw; 
                 endcase
             end
         end
