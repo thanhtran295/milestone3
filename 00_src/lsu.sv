@@ -15,8 +15,8 @@ module lsu (
 );
     logic [31:0] aligned_addr;
     logic [1:0]  byte_offset;
+    logic [31:0] mem_addr;
 
-    logic [31:0] w_data; 
     logic [31:0] r_data;
     logic [3:0]  mem_bmask; 
     logic [31:0] reg_switch; 
@@ -25,7 +25,7 @@ memory dmem_0 (
         .i_clk         (i_clk), 
         .i_reset       (i_reset), 
         .i_addr        (mem_addr),
-        .i_wdata       (w_data),
+        .i_wdata       (i_st_data),
         .i_bmask       (mem_bmask), 
         .i_wren        (i_lsu_wren),
         .o_rdata       (o_ld_data)
@@ -34,7 +34,7 @@ memory dmem_0 (
 
     assign aligned_addr = {i_lsu_addr[31:2], 2'b00};
     assign byte_offset  = i_lsu_addr[1:0];
-    assign mem_addr = aligned_addr[31:2];
+    assign mem_addr = {2'b0, i_lsu_addr[31:2]};
 
     // Write Mem logic 
     always_comb begin 

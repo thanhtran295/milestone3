@@ -13,6 +13,7 @@ module lsu_tb;
     logic [31:0] io_ledr, io_ledg, io_lcd;
     logic [6:0]  io_hex [0:7];
     logic [31:0] io_sw = 32'hDEADBEEF;
+    logic [31:0] data_in; 
 
 lsu dut (
     .i_clk(clk),
@@ -32,16 +33,6 @@ lsu dut (
 
 always #5 clk = ~clk;
 
-initial begin
-    $display("==== LSU Testbench ====");
-    clk = 0;
-    reset = 1;
-    @(posedge clk);
-    reset = 0;
-    sltu_case();
-    slt_case(); 
-    equal_case();
-end
 
 task store(input [31:0] a, input [31:0] d, input [1:0] sz);
     addr = a;
@@ -49,19 +40,10 @@ task store(input [31:0] a, input [31:0] d, input [1:0] sz);
     size = sz;
     wren = 1;
     @(posedge clk);
-    wren = 0;
-    @(posedge clk);
+    $display("Store [%h] = %h", a, st_data);
+
 endtask
 
-task load(input [31:0] a, input [31:0] d, input [1:0] sz);
-    addr = a;
-    st_data = d;
-    size = sz;
-    wren = 0;
-    @(posedge clk);
-    wren = 0;
-    @(posedge clk);
-endtask
 
 task load(input [31:0] a, input [1:0] sz, input u);
         addr = a;
@@ -72,12 +54,21 @@ task load(input [31:0] a, input [1:0] sz, input u);
         $display("Load [%h] = %h", a, ld_data);
 endtask
 initial begin 
+        $display("==== LSU Testbench ====");
+        clk = 0;
+        reset = 1;
+        @(posedge clk);
+        reset = 0;
+        repeat(15) @(posedge clk);
         // Store Word aligned
-        store(32'h0000_0000, 32'h11223344, 2'b10);
+        for (int i = 0; i < 4*10; i=i+4) begin 
+            data_in = $random; 
+            store(i, data_in, 2'b10);
+        end 
         // Load Word
         load(32'h0000_0000, 2'b10, 0);
         $display("==== Done ====");
-        $finish;
+        //$finish;
 end  
 
 endmodule
