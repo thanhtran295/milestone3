@@ -15,8 +15,6 @@ module imem(
         .o_rdata       (o_rdata)
     );
     
-    initial begin 
-        $readmemh("E:/TK_VXL/SingleCycle_RICSV/project_1/project_1.srcs/sources_1/new/asm_code.mem", imem_inst.mem);
-    end
+    
 
 endmodule 

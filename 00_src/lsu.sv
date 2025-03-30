@@ -28,7 +28,7 @@ memory dmem_0 (
         .i_wdata       (i_st_data),
         .i_bmask       (mem_bmask), 
         .i_wren        (i_lsu_wren),
-        .o_rdata       (o_ld_data)
+        .o_rdata       (r_data)
 );
 
 
