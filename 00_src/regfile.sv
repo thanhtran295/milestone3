@@ -26,7 +26,6 @@ module regfile (
         end 
     end 
  
-    
     assign o_rs1_data = (i_rs1_addr == 32'd0) ? 32'd0 : reg_mem[i_rs1_addr];
     assign o_rs2_data = (i_rs2_addr == 32'd0) ? 32'd0 : reg_mem[i_rs2_addr];
         
