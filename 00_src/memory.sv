@@ -10,7 +10,7 @@ module memory #(
     input                           i_wren, 
     output logic [31:0]             o_rdata
 );
-    localparam ADDR = 100;
+    localparam ADDR = 512;
     logic [31:0] mem [ADDR-1:0]; 
     
     always_ff @(posedge i_clk, posedge i_reset) begin 
