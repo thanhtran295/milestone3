@@ -9,18 +9,18 @@ module imm_gen(
     
     logic imm_0 ; // bit 0 of imm; 
     
-    assign imm_0            =       i_imm_sel[0] ? 1'b0 : i_inst[7];
-    assign o_imm[10:5]      =       i_inst[31:24];
-    assign o_imm[11]        =       i_imm_sel[1] ? i_inst[7] : i_inst[31];
-    assign o_imm[4:0]       =       i_imm_sel[0] ? i_inst[11:7] : i_inst[24:20];
-    assign o_imm[31:12]     =       {20{i_inst[31]}};
-//    always_comb begin 
-//        case(i_imm_sel) 
-//            IMM_I_TYPE: o_imm = {{20{inst[31]}}, inst[31:20]};//signed extended
-//            IMM_S_TYPE: o_imm = {{20{inst[31]}} ,inst[31:25], inst[11:7]};
-//            B
-//            default: o_imm = 32'dx;
-//        endcase
-//    end 
+//    assign imm_0            =       i_imm_sel[0] ? 1'b0 : i_i_inst[7];
+//    assign o_imm[10:5]      =       i_i_inst[31:24];
+//    assign o_imm[11]        =       i_imm_sel[1] ? i_i_inst[7] : i_i_inst[31];
+//    assign o_imm[4:0]       =       i_imm_sel[0] ? i_i_inst[11:7] : i_i_inst[24:20];
+//    assign o_imm[31:12]     =       {20{i_i_inst[31]}};
+    always_comb begin 
+        case(i_imm_sel) 
+            IMM_I_TYPE: o_imm = {{20{i_inst[31]}}, i_inst[31:20]};//signed extended
+            IMM_S_TYPE: o_imm = {{20{i_inst[31]}} ,i_inst[31:25], i_inst[11:7]};
+            IMM_B_TYPE: o_imm = {{20{i_inst[31]}} ,i_inst[7], i_inst[30:25], i_inst[11:8], 1'b0};
+            default: o_imm = 32'dx;
+        endcase
+    end 
     
 endmodule

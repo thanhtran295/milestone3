@@ -15,8 +15,5 @@ module imem(
         .o_rdata       (o_rdata)
     );
     
- //   initial begin 
- //       $readmemh("asm_code.mem", imem_inst.mem);
- //   end
 
 endmodule 

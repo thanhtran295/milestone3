@@ -5,7 +5,11 @@ module singlecycle(
     output logic            o_insn_vld, 
     output logic [31:0]     o_io_ledr, 
     output logic [31:0]     o_io_ledg, 
+<<<<<<< HEAD
     output logic [6:0]      o_io_hex07 [0:7], 
+=======
+    output logic [6:0]      o_io_hex07  [0:7], 
+>>>>>>> origin/main
     output logic [31:0]     o_io_lcd, 
     input  logic [31:0]     i_io_sw
 );
@@ -39,7 +43,15 @@ module singlecycle(
           .pc_curr     (pc)
     );
     
-    assign pc_next = pc_sel ? alu_out : pc + 32'd4; 
+    always_comb begin 
+        if (pc == 32'd36) begin 
+            pc_next = pc; 
+        end 
+        else begin 
+            pc_next = pc_sel ? alu_out : pc + 32'd4; 
+        end
+    end 
+//    assign pc_next = pc_sel ? alu_out : pc + 32'd4; 
     
     imem imem_inst (
           .i_clk        (i_clk), 
@@ -78,6 +90,7 @@ module singlecycle(
     
 //    dmem dmem_inst (
 //        .i_clk           (i_clk),   
+<<<<<<< HEAD
 //       .i_reset         (i_reset), 
 //        .i_addr          (alu_out),  
 //        .i_wdata         (dmem_wdata), 
@@ -100,6 +113,32 @@ module singlecycle(
     .i_io_sw(i_io_sw)
     );
 
+=======
+//        .i_reset         (i_reset), 
+//        .i_addr          (alu_out),  
+//        .i_wdata         (dmem_wdata), 
+//        .i_wren          (dmem_we),  
+//        .o_rdata         (dmem_rdata)  
+//    );
+    
+    lsu lsu_inst (
+          .i_clk        (i_clk),
+          .i_reset      (i_reset),
+          .i_lsu_addr   (alu_out),
+          .i_st_data    (dmem_wdata),
+          .i_lsu_size    (2'b10), //default WORD 
+//          .i_lsu_unsigned(unsigned_op),
+          .i_lsu_wren   (dmem_we),
+          .o_ld_data    (dmem_rdata),
+          .o_io_ledr    (o_io_ledr),
+          .o_io_ledg    (o_io_ledg),
+          .o_io_hex     (o_io_hex07),
+          .o_io_lcd     (o_io_lcd),
+          .i_io_sw      (i_io_sw)
+    );
+
+//    assign dmem_wdata       = alu_out;    
+>>>>>>> origin/main
     assign dmem_wdata       = rs2_data;
     assign write_back_data  = wb_sel ? alu_out : dmem_rdata ;
     

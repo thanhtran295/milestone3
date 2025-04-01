@@ -50,7 +50,7 @@ module controller(
 //                               B_TYPE           =   7'b1100011 } inst_type; 
     
 //    inst_type opcode ;
-	 logic [6:0] opcode; 
+    logic [6:0] opcode; 
     logic [3:0] alu_op; 
     logic       pc_sel_branch;
     
