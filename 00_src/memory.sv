@@ -29,12 +29,17 @@ module memory #(
             end 
         end 
     end 
-    always_comb begin
-        o_rdata = 32'b0;  
-        for (int iii = 0; iii < (DATA_W/8); iii++) begin 
-            if (i_bmask[iii]) begin
-                o_rdata[iii*8 +: 8] = mem[i_addr][iii*8 +: 8];
-            end 
-        end 
+	 
+	assign o_rdata = mem[i_addr]; 
+    // always_comb begin
+    //     o_rdata = 32'b0;  
+    //     for (int iii = 0; iii < (DATA_W/8); iii++) begin 
+    //         if (i_bmask[iii]) begin
+    //             o_rdata[iii*8 +: 8] = mem[i_addr][iii*8 +: 8];
+    //         end 
+    //     end 
+    // end
+	 initial begin 
+        $readmemh("asm_code.mem", mem);
     end
 endmodule 

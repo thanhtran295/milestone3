@@ -15,11 +15,11 @@ module controller(
     output logic               o_pc_sel, 
     output logic               o_insn_vld    
 );
-    // localparam R_TYPE           =   7'b0110011; 
-    // localparam R_TYPE_IMM       =   7'b0010011;
-    // localparam I_TYPE           =   7'b0000011; 
-    // localparam S_TYPE           =   7'b0100011;
-    // localparam B_TYPE           =   7'b1100011; 
+    localparam R_TYPE           =   7'b0110011; 
+    localparam R_TYPE_IMM       =   7'b0010011;
+    localparam I_TYPE           =   7'b0000011; 
+    localparam S_TYPE           =   7'b0100011;
+    localparam B_TYPE           =   7'b1100011; 
     
     localparam IMM_I_TYPE       =   2'b00; 
     localparam IMM_S_TYPE       =   2'b01;
@@ -43,13 +43,14 @@ module controller(
     localparam logic BLTU       =   3'b110;
     localparam logic BGEU       =   3'b111;
     
-    typedef enum logic [6:0] { R_TYPE           =   7'b0110011, 
-                               R_TYPE_IMM       =   7'b0010011,
-                               I_TYPE           =   7'b0000011, 
-                               S_TYPE           =   7'b0100011,
-                               B_TYPE           =   7'b1100011 } inst_type; 
+//    typedef enum logic [6:0] { R_TYPE           =   7'b0110011, 
+//                               R_TYPE_IMM       =   7'b0010011,
+//                               I_TYPE           =   7'b0000011, 
+//                               S_TYPE           =   7'b0100011,
+//                               B_TYPE           =   7'b1100011 } inst_type; 
     
-    inst_type opcode ;
+//    inst_type opcode ;
+	 logic [6:0] opcode; 
     logic [3:0] alu_op; 
     logic       pc_sel_branch;
     
