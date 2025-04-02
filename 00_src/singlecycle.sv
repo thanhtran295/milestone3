@@ -38,15 +38,9 @@ module singlecycle(
           .pc_next     (pc_next),
           .pc_curr     (pc)
     );
-    
-    always_comb begin 
-        if (pc == 32'd36) begin 
-            pc_next = pc; 
-        end 
-        else begin 
-            pc_next = pc_sel ? alu_out : pc + 32'd4; 
-        end
-    end 
+
+
+     assign pc_next = pc_sel ? alu_out : pc + 32'd4; 
 //    assign pc_next = pc_sel ? alu_out : pc + 32'd4; 
     
     imem imem_inst (
