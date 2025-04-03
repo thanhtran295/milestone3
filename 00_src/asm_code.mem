@@ -1,10 +1,6 @@
-0x12300093 //addi x1, x0, 0x123     
-0x08000113 //addi x2, x0, 0x80      
-0x00112023 //sw x1, 0(x2)           
-0x08C00193 //addi x3, x0, 0x8C      
-0x0001A203 //lw x4, 0(x3)           
-0x08400293 //addi x5, x0, 0x84      
-0x0042A023 //sw x4, 0(x5)           
-0x08800313 //addi x6, x0, 0x88      
-0x00432023 //sw x4, 0(x6)           
-0x00432023 //sw x4, 0(x6)
+0x00A00313 // addi x6, x0, 10	
+0x00000293 // addi x5, x0, 0	
+0x006282B3 // add x5, x5, x6	
+0xFFF30313 // addi x6, x6, -1	
+0x00030463 // beq x6, x0, end	
+0xFE000AE3 // beq x0, x0, loop	

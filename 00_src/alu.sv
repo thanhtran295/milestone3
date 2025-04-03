@@ -56,12 +56,8 @@ shifter_right_arth shra0 (
     .a_out(shra_path)
 );
 always_comb begin
-    signA = 1'b0;
-    signB = 1'b0;
-    signDiff = 1'b0;
-    overflow = 1'b0;
-    res = 1'b0;
     case (i_alu_op)
+
     ADD: begin
         o_alu_data = sum_path[31:0];
     end

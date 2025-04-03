@@ -4,7 +4,6 @@ module lsu (
     input logic [31:0]  i_lsu_addr,
     input logic [31:0]  i_st_data,
     input logic [1:0]   i_lsu_size,  // 00: byte, 01: half-word, 10: word
-    input logic         i_lsu_signed, // 1 --> signed, 0 --> unsigned
     input logic         i_lsu_wren,
     output logic [31:0] o_ld_data,
 
@@ -172,44 +171,27 @@ dual_port_mem dmem_0 (
 //Write PIO register 
   always_ff @(posedge i_clk or posedge i_reset) begin
         if (i_reset) begin
-            r_switch <= 0;
-            r_seven_seg_0 <= 0;
-            r_seven_seg_1 <= 0;
-            r_ledr  <= 0;
-            r_ledg  <= 0;
-            r_lcd   <= 0; 
+            o_io_ledr <= 0;
+            o_io_ledg <= 0;
+            o_io_lcd  <= 0;
+            for (int i = 0; i < 2; i++) o_io_hex[i] <= 0;
         end else if (i_lsu_wren) begin
-            case (i_lsu_addr)
-                32'h1000_0000: r_ledr         <= i_st_data;
-                32'h1000_1000: r_ledg         <= i_st_data;
-                32'h1000_2000: r_seven_seg_0  <= i_st_data;
-                32'h1000_3000: r_seven_seg_1  <= i_st_data;
-                32'h1000_4000: r_lcd          <= i_st_data;
-                32'h1001_0000: r_switch       <= i_io_sw; 
-            endcase
+            if ((i_lsu_addr >= 32'h1000_0000) && (i_lsu_addr <= 32'h1000_0FFF)) begin
+                case (i_lsu_addr)
+                    32'h1000_0000: o_io_ledr <= i_st_data;
+                    32'h1000_1000: o_io_ledg <= i_st_data;
+                    32'h1000_2000: o_io_hex[0] <= i_st_data[6:0];
+                    32'h1000_3000: o_io_hex[1] <= i_st_data[6:0];
+                    32'h1000_4000: o_io_lcd   <= i_st_data;
+                    32'h1001_0000: r_switch <= i_io_sw; 
+                endcase
+            end
         end
     end
 
     // Read logic
     always_comb begin
         o_ld_data = 32'd0;
-        o_io_lcd  = 32'd0;
-        o_io_ledr = 32'd0; 
-        o_io_ledg = 32'd0; 
-        for (int i = 0; i < 8; i++) o_io_hex[i] = 32'd0;
-        o_io_ledr = {15'b0,r_ledr[16:0]};
-        o_io_ledg = {15'b0,r_ledg[16:0]};
-        
-        o_io_hex[0] = {25'd0, r_seven_seg_0[6:0]};
-        o_io_hex[1] = {25'd0, r_seven_seg_0[14:8]};
-        o_io_hex[2] = {25'd0, r_seven_seg_0[22:16]};
-        o_io_hex[3] = {25'd0, r_seven_seg_0[30:24]}; 
-        o_io_hex[4] = {25'd0, r_seven_seg_1[6:0]};
-        o_io_hex[5] = {25'd0, r_seven_seg_1[14:8]};
-        o_io_hex[6] = {25'd0, r_seven_seg_1[22:16]};
-        o_io_hex[7] = {25'd0, r_seven_seg_1[30:24]};
-        o_io_lcd = {r_lcd[31],20'b0,r_lcd[10:0]};
-
         if (i_lsu_addr >= 32'h0000_0000 && i_lsu_addr <= 32'h0000_07FF) begin
             case (i_lsu_size)
                 2'b00: begin // load byte
@@ -229,9 +211,7 @@ dual_port_mem dmem_0 (
                     o_ld_data = r_data;
                 end 
             endcase
-        end else begin 
-                o_ld_data = r_switch;
-        end  
+        end
     end
 
 endmodule

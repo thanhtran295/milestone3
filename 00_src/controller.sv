@@ -15,11 +15,12 @@ module controller(
     output logic               o_pc_sel, 
     output logic               o_insn_vld    
 );
-    localparam R_TYPE           =   7'b0110011; 
-    localparam R_TYPE_IMM       =   7'b0010011;
-    localparam I_TYPE           =   7'b0000011; 
-    localparam S_TYPE           =   7'b0100011;
-    localparam B_TYPE           =   7'b1100011; 
+     localparam R_TYPE           =   7'b0110011; 
+     localparam R_TYPE_IMM       =   7'b0010011;
+     localparam I_TYPE           =   7'b0000011; 
+     localparam S_TYPE           =   7'b0100011;
+     localparam B_TYPE           =   7'b1100011;
+//     localparam J_TYPE           =   7'b 
     
     localparam IMM_I_TYPE       =   2'b00; 
     localparam IMM_S_TYPE       =   2'b01;
@@ -70,14 +71,14 @@ module controller(
                 o_insn_vld      =       1'b1;  
             end 
             R_TYPE_IMM: begin
-                 o_alu_op       =       alu_op; 
+                 o_alu_op       =       ADD; 
                  o_reg_wen      =       1'b1;
                  o_alu_a_sel    =       1'b0;
                  o_alu_b_sel    =       1'b1; 
                  o_imm_sel      =       IMM_I_TYPE; 
                  o_wb_sel       =       1'b1; 
                  o_dmem_we      =       1'b0; 
-                 o_pc_sel        =       1'b0; 
+                 o_pc_sel        =      1'b0; 
                  o_insn_vld     =       1'b1;
             end 
             I_TYPE: begin // LOAD 
@@ -162,8 +163,10 @@ module controller(
     end 
 
     // ALU decode logic
-    
+    // only R-Type 
+    // R_IMM_TYPE 
     aludecode aludecode_inst(
+        .i_opcode       (opcode), 
         .i_funct3       (i_inst[14:12]),   
         .i_funct7       (i_inst[30]),   
         .o_alu_op       (alu_op)
