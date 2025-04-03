@@ -126,8 +126,66 @@ initial begin
         store(32'h1001_0000, data_in, 2'b10);
          @(posedge clk);
         load(32'h1001_0000, 2'b10, 0);
+                data_in = $random; 
+        store(32'h1000_0000, data_in, 2'b10);
+        data_in = $random; 
+        store(32'h1000_1000, data_in, 2'b10);
+        data_in = $random; 
+        store(32'h1000_2000, data_in, 2'b10);
+        data_in = $random; 
+        store(32'h1000_3000, data_in, 2'b10);
+        data_in = $random; 
+        store(32'h1000_4000, data_in, 2'b10);
+        data_in = $random; 
+        store(32'h1001_0000, data_in, 2'b10);
+         @(posedge clk);
+        load(32'h1001_0000, 2'b10, 0);
         
+        $display("==== Misaligned check ====");
+        for (int i = 100; i < 110; i=i+1) begin 
+            data_in = $random; 
+            store(i, data_in, 2'b00);
+        end
+        for (int i = 121; i < 130; i=i+2) begin 
+            data_in = $random; 
+            store(i, data_in, 2'b01);
+        end
+        for (int i = 200; i < 250; i=i+5) begin 
+            data_in = $random; 
+            store(i, data_in, 2'b01);
+        end
         
+        for (int i = 100; i < 110; i=i+1) begin 
+            data_in = $random; 
+            load(i, 2'b00,1);
+        end
+        for (int i = 121; i < 130; i=i+2) begin 
+            data_in = $random; 
+            load(i, 2'b01, 1);
+        end
+        for (int i = 200; i < 250; i=i+5) begin 
+            data_in = $random; 
+            load(i, 2'b10, 1);
+        end
+        for (int i = 100; i < 110; i=i+1) begin 
+            data_in = $random; 
+            load(i, 2'b00,0);
+        end
+        for (int i = 121; i < 130; i=i+2) begin 
+            data_in = $random; 
+            load(i, 2'b01, 0);
+        end
+        for (int i = 200; i < 250; i=i+5) begin 
+            data_in = $random; 
+            load(i, 2'b10, 0);
+        end
+        for (int i = 300; i < 340; i=i+1) begin 
+            data_in = $random; 
+            store(i, data_in, 2'b00);
+        end
+        for (int i = 300; i < 340; i=i+5) begin  
+            load(i, 2'b10, 0);
+        end
 
         $display("==== Done ====");
         $finish;
