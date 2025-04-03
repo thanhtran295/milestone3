@@ -5,6 +5,7 @@ module lsu (
     input logic [31:0]  i_st_data,
     input logic [1:0]   i_lsu_size,  // 00: byte, 01: half-word, 10: word
     input logic         i_lsu_wren,
+    input logic         i_lsu_signed,
     output logic [31:0] o_ld_data,
 
     output logic [31:0] o_io_ledr,
