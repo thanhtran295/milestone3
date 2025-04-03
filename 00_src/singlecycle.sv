@@ -19,11 +19,12 @@ module singlecycle(
     logic [31:0]    dmem_rdata, dmem_wdata; 
     
     //Control signals wires 
-    logic           alu_a_sel, alu_b_sel; 
-    logic [1:0]     imm_sel; 
+    logic [1:0]     alu_a_sel; 
+    logic           alu_b_sel; 
+    logic [2:0]     imm_sel; 
     logic [3:0]     alu_op; 
     logic           reg_wen;
-    logic           wb_sel;
+    logic [1:0]     wb_sel;
     logic           dmem_we; 
     logic           br_un; 
     logic           br_less, br_equal; 
@@ -69,7 +70,16 @@ module singlecycle(
         .o_alu_data     (alu_out) 
     );
     
-    assign alu_opa  = alu_a_sel ? pc : rs1_data ; 
+//    assign alu_opa  = alu_a_sel ? pc : rs1_data ; 
+    always_comb begin 
+        alu_opa = 0; 
+        case(alu_a_sel)
+            2'b00: alu_opa = rs1_data; 
+            2'b01: alu_opa = pc; 
+            2'b10: alu_opa = 0;
+        endcase
+    end 
+    
     assign alu_opb  = alu_b_sel ? imm :  rs2_data ; 
     
     imm_gen imm_gen_inst (
@@ -105,7 +115,15 @@ module singlecycle(
 
 //    assign dmem_wdata       = alu_out;    
     assign dmem_wdata       = rs2_data;
-    assign write_back_data  = wb_sel ? alu_out : dmem_rdata ;
+//    assign write_back_data  = wb_sel ? alu_out : dmem_rdata ;
+    always_comb begin
+        write_back_data = dmem_rdata;
+        case(wb_sel)
+            2'b00: write_back_data = dmem_rdata; 
+            2'b01: write_back_data = alu_out; 
+            2'b10: write_back_data = pc_next;
+        endcase
+    end 
     
     brc brc_inst (
         .i_rs1_data     (rs1_data),
@@ -119,8 +137,8 @@ module singlecycle(
     //=============================================CONTROLLER===================================
     //==========================================================================================
     controller controller_inst(
-        .i_clk           (i_clk),        
-        .i_reset         (i_reset),      
+//        .i_clk           (i_clk),        
+//        .i_reset         (i_reset),      
         .i_inst          (inst),   
         .i_br_less       (br_less), 
         .i_br_equal      (br_equal),

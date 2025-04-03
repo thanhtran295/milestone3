@@ -21,6 +21,7 @@ module aludecode(
 
     always_comb begin 
         if (i_opcode == R_TYPE) begin 
+            o_alu_op = ADD;
             case({i_funct7, i_funct3})
                 4'b0000: o_alu_op = ADD;
                 4'b1000: o_alu_op = SUB; 
@@ -36,9 +37,15 @@ module aludecode(
             endcase
         end
         else begin 
+            o_alu_op = ADD;
             case(i_funct3) 
                 3'b000: o_alu_op = ADD;
+                3'b001: o_alu_op = SLL; 
+                3'b010: o_alu_op = SLT; 
+                3'b011: o_alu_op = SLTU;  
                 3'b100: o_alu_op = XOR; 
+                3'b101: o_alu_op = SRL; 
+                3'b110: o_alu_op = SRA; 
                 3'b110: o_alu_op = OR; 
                 3'b111: o_alu_op = AND; 
             endcase
