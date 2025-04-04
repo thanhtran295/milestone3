@@ -22,6 +22,10 @@ adder adder_0 (
 
 always_comb begin
     // Compute A - B
+	 signA=0;
+	 signB=0;
+	 signDiff=0;
+	 overflow=0;
     case (i_br_un)
     1'b1: begin 
         signA = i_rs1_data[31]; 

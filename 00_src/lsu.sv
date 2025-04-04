@@ -125,10 +125,12 @@ dual_port_mem dmem_0 (
                     r_data = {16'b0,r_data_b[7:0],r_data_a[31:24]};
                     
                 end 
-                default: begin 
-                    mem_bmask_a = 4'b1110; 
-                    mem_bmask_b = 4'b0001;
-                    r_data = {r_data_b[7:0],r_data_a[31:8]};
+                default: begin
+						  i_st_data_a = {8'b0,i_st_data[15:0],8'b0};  
+                    i_st_data_b = 32'b0; 
+                    mem_bmask_a = 4'b0110; 
+                    mem_bmask_b = 4'b0000;
+                    r_data = {16'b0,r_data_a[23:8]};
                 end 
                 endcase 
             end
@@ -162,10 +164,12 @@ dual_port_mem dmem_0 (
                 end
                 default: begin 
                 mem_bmask = 4'b1111;
+					 i_st_data_temp = i_st_data; 
                 end 
             endcase
         end else begin 
-            mem_bmask = 4'b0000; 
+            mem_bmask = 4'b0000;
+			   i_st_data_temp = i_st_data;	
         end 
     end
 
