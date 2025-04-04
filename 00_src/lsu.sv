@@ -137,11 +137,13 @@ dual_port_mem dmem_0 (
 
     assign aligned_addr = {i_lsu_addr[31:2], 2'b00};
     assign byte_offset  = i_lsu_addr[1:0];
-    assign mem_addr = {2'b0, i_lsu_addr[31:2]};
-
+    // assign mem_addr = {2'b0, i_lsu_addr[31:2]};// ?????????
+    assign mem_addr = {2'b0, i_lsu_addr[31:2]};// ?????????
+    // assign mem_addr = {i_lsu_addr[31:2], 2'b00};
     // Write Mem logic 
     always_comb begin 
         if (i_lsu_addr >= 32'h0000_0000 && i_lsu_addr <= 32'h0000_07FF) begin
+            i_st_data_temp = i_st_data;
             case (i_lsu_size)
                 2'b00: begin // store byte 
                 i_st_data_temp = (byte_offset == 2'b00) ? {24'b0,i_st_data} : 
