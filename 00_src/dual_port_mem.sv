@@ -4,8 +4,8 @@ module dual_port_mem #(
 (
     input                           i_clk, 
     input                           i_reset, 
-    input        [ADDR_W-1:0]       i_addr_a,
-    input        [ADDR_W-1:0]       i_addr_b, 
+    input        [9-1:0]            i_addr_a,
+    input        [9-1:0]            i_addr_b, 
     input        [31:0]             i_wdata_a,
     input        [31:0]             i_wdata_b,
     input        [3:0]              i_bmask_a, 

@@ -42,12 +42,12 @@ module controller(
     localparam logic [3:0] SRL  =   4'b1000;
     localparam logic [3:0] SRA  =   4'b1001;
     
-    localparam logic BEQ        =   3'b000;
-    localparam logic BNE        =   3'b001;
-    localparam logic BLT        =   3'b100;
-    localparam logic BGE        =   3'b101;
-    localparam logic BLTU       =   3'b110;
-    localparam logic BGEU       =   3'b111;
+    localparam logic [3:0] BEQ        =   3'b000;
+    localparam logic [3:0] BNE        =   3'b001;
+    localparam logic [3:0] BLT        =   3'b100;
+    localparam logic [3:0] BGE        =   3'b101;
+    localparam logic [3:0] BLTU       =   3'b110;
+    localparam logic [3:0] BGEU       =   3'b111;
     
     typedef enum logic [6:0] { R_TYPE           =   7'b0110011, 
                                R_TYPE_IMM       =   7'b0010011,
@@ -80,7 +80,7 @@ module controller(
                 o_insn_vld      =       1'b1;  
             end 
             R_TYPE_IMM: begin
-                 o_alu_op       =       ADD; 
+                 o_alu_op       =       alu_op; 
                  o_reg_wen      =       1'b1;
                  o_alu_a_sel    =       2'b00;
                  o_alu_b_sel    =       1'b1; 
@@ -104,7 +104,7 @@ module controller(
             S_TYPE: begin  // STORE
                 o_alu_op        =       ADD;  
                 o_reg_wen       =       1'b0;
-                o_alu_a_sel     =       2'b01;
+                o_alu_a_sel     =       2'b00;
                 o_alu_b_sel     =       1'b1; 
                 o_imm_sel       =       IMM_S_TYPE;
                 o_wb_sel        =       2'b0; 
@@ -113,7 +113,7 @@ module controller(
                 o_insn_vld      =       1'b1;  
             end 
             B_TYPE: begin // BRANCH
-                 o_alu_op        =      alu_op;
+                 o_alu_op        =      ADD;
                  o_reg_wen       =      1'b0;
                  o_alu_a_sel     =      2'b01;
                  o_alu_b_sel     =      1'b1;
@@ -176,14 +176,15 @@ module controller(
                 o_wb_sel        =       2'bxx; 
                 o_dmem_we       =       1'bx; 
                 o_pc_sel        =       1'bx; 
-                o_insn_vld      =       1'bx; 
+                o_insn_vld      =       1'b0; 
             end 
         endcase
     end 
-
+    logic [2:0] funct3; 
+    assign  funct3 = i_inst[14:12]; 
     // Branch decode logic
-    always_comb begin 
-        case(i_inst[14:12])
+    always_comb begin   
+        case(funct3)
             BEQ: begin 
                 o_br_un = 1'b0; 
                 pc_sel_branch = i_br_equal; 
@@ -197,10 +198,10 @@ module controller(
                 pc_sel_branch = i_br_less; 
             end 
             BGE: begin 
-                o_br_un = 1'b1; 
+                o_br_un = 1'b1;     
                 pc_sel_branch = i_br_equal | ~i_br_less; 
             end
-            BLTU: begin 
+            BLTU: begin
                 o_br_un = 1'b0; 
                 pc_sel_branch = i_br_less; 
             end

@@ -43,7 +43,7 @@ module singlecycle(
 
      assign pc_next = pc_sel ? alu_out : pc + 32'd4; 
 //    assign pc_next = pc_sel ? alu_out : pc + 32'd4; 
-    
+    assign o_pc_debug = pc; 
     imem imem_inst (
           .i_clk        (i_clk), 
           .i_reset      (i_reset),
@@ -103,6 +103,7 @@ module singlecycle(
           .i_lsu_addr   (alu_out),
           .i_st_data    (dmem_wdata),
           .i_lsu_size    (2'b10), //default WORD 
+          .i_lsu_signed  (), 
 //          .i_lsu_unsigned(unsigned_op),
           .i_lsu_wren   (dmem_we),
           .o_ld_data    (dmem_rdata),
