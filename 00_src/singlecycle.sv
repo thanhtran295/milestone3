@@ -29,6 +29,8 @@ module singlecycle(
     logic           br_un; 
     logic           br_less, br_equal; 
     logic           pc_sel;
+    logic           lsu_signed;
+    logic [1:0]     lsu_size;
     //==========================================================================================
     //=============================================DATA PATH====================================
     //==========================================================================================
@@ -102,9 +104,8 @@ module singlecycle(
           .i_reset      (i_reset),
           .i_lsu_addr   (alu_out),
           .i_st_data    (dmem_wdata),
-          .i_lsu_size    (2'b10), //default WORD 
-          .i_lsu_signed  (), 
-//          .i_lsu_unsigned(unsigned_op),
+          .i_lsu_size    (lsu_size), //default WORD 
+          .i_lsu_signed  (lsu_signed), 
           .i_lsu_wren   (dmem_we),
           .o_ld_data    (dmem_rdata),
           .o_io_ledr    (o_io_ledr),
@@ -152,7 +153,9 @@ module singlecycle(
         .o_dmem_we       (dmem_we), 
         .o_br_un         (br_un),
         .o_pc_sel        (pc_sel),
-        .o_insn_vld      (o_insn_vld)
+        .o_insn_vld      (o_insn_vld),
+        .o_lsu_signed    (lsu_signed),
+        .o_lsu_size      (lsu_size)
     );
     
     

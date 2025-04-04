@@ -31,6 +31,10 @@ module memory #(
     assign o_rdata = mem[i_addr];
     
     initial begin 
+        `ifdef THANH_TB
+        $readmemh("F:/DATA/Study/SEM3/VXL/milestone2/milestone2/00_src/test.hex", mem);
+        `else 
         $readmemh("E:/TK_VXL/SingleCycle_RICSV/project_1/project_1.srcs/sources_1/new/asm_code.mem", mem);
+        `endif 
     end
 endmodule 

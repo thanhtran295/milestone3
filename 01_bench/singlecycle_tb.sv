@@ -1,4 +1,5 @@
 `define NUM_LOOP 50
+`define THANH_TB
 module singlecycle_tb;
     // DUT signals
     logic            i_clk            ;
@@ -37,7 +38,7 @@ initial begin
         i_io_sw = 32'h0000_0000; 
         repeat(15) @(posedge i_clk);
         // Store Word aligned
-        repeat(100) @(posedge i_clk);
+        repeat(8000) @(posedge i_clk);
         $finish;
 end  
 

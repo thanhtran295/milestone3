@@ -18,7 +18,8 @@ module aludecode(
     
     localparam R_TYPE           =   7'b0110011; 
     localparam R_TYPE_IMM       =   7'b0010011;
-
+    logic [3:0] sr; 
+    assign sr = (i_funct7) ? SRA : SRL; 
     always_comb begin 
         if (i_opcode == R_TYPE) begin 
             o_alu_op = ADD;
@@ -30,7 +31,7 @@ module aludecode(
                 4'b0011: o_alu_op = SLTU; 
                 4'b0100: o_alu_op = XOR;
                 4'b0101: o_alu_op = SRL; 
-                4'b1110: o_alu_op = SRA;
+                4'b1101: o_alu_op = SRA;
                 4'b0110: o_alu_op = OR;
                 4'b0111: o_alu_op = AND;
                 default: o_alu_op = 4'bxxx; 
@@ -44,8 +45,7 @@ module aludecode(
                 3'b010: o_alu_op = SLT; 
                 3'b011: o_alu_op = SLTU;  
                 3'b100: o_alu_op = XOR; 
-                3'b101: o_alu_op = SRL; 
-                3'b110: o_alu_op = SRA; 
+                3'b101: o_alu_op = sr;  
                 3'b110: o_alu_op = OR; 
                 3'b111: o_alu_op = AND; 
             endcase

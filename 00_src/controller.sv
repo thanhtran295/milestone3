@@ -13,7 +13,9 @@ module controller(
     output logic               o_dmem_we, 
     output logic               o_br_un, 
     output logic               o_pc_sel, 
-    output logic               o_insn_vld    
+    output logic               o_insn_vld,
+    output logic               o_lsu_signed,
+    output logic     [1:0]     o_lsu_size   
 );
 //     localparam R_TYPE           =   7'b0110011; 
 //     localparam R_TYPE_IMM       =   7'b0010011;
@@ -59,8 +61,8 @@ module controller(
                                LUI_TYPE         =   7'b0110111, 
                                AUIPC_TYPE       =   7'b0010111} inst_type; 
     
-    inst_type opcode ;
-//    logic [6:0] opcode; 
+//    inst_type opcode ;
+    logic [6:0] opcode; 
     logic [3:0] alu_op; 
     logic       pc_sel_branch;
     
@@ -183,6 +185,22 @@ module controller(
     logic [2:0] funct3; 
     assign  funct3 = i_inst[14:12]; 
     // Branch decode logic
+    always_comb begin 
+        case(opcode)
+        S_TYPE: begin
+            o_lsu_signed = 1'b0; 
+            o_lsu_size   = funct3[1:0]; 
+        end 
+        I_TYPE: begin 
+            o_lsu_signed = funct3[2]; 
+            o_lsu_size   = funct3[1:0];
+        end
+        default: begin
+            o_lsu_signed = 1'b0; 
+            o_lsu_size   = 2'b0;
+        end 
+        endcase 
+    end 
     always_comb begin   
         case(funct3)
             BEQ: begin 
