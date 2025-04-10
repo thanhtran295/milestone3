@@ -73,12 +73,12 @@ module singlecycle(
     );
     
 //    assign alu_opa  = alu_a_sel ? pc : rs1_data ; 
-    always_comb begin 
-        alu_opa = 0; 
+    always_comb begin  
         case(alu_a_sel)
             2'b00: alu_opa = rs1_data; 
             2'b01: alu_opa = pc; 
             2'b10: alu_opa = 0;
+				default: alu_opa =0;
         endcase
     end 
     
@@ -119,11 +119,11 @@ module singlecycle(
     assign dmem_wdata       = rs2_data;
 //    assign write_back_data  = wb_sel ? alu_out : dmem_rdata ;
     always_comb begin
-        write_back_data = dmem_rdata;
         case(wb_sel)
             2'b00: write_back_data = dmem_rdata; 
             2'b01: write_back_data = alu_out; 
             2'b10: write_back_data = pc_next;
+				default: write_back_data = dmem_rdata;
         endcase
     end 
     

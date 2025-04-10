@@ -25,9 +25,6 @@ singlecycle dut (
     );
 
 always #5 i_clk = ~i_clk;
-initial begin 
-     $readmemh("test.hex", dut.imem_inst.imem_inst.mem);
-end 
 
 initial begin 
         $display("==== SingleCycle Testbench ====");
