@@ -4,8 +4,8 @@ module dual_port_mem #(
 (
     input                           i_clk, 
     input                           i_reset, 
-    input        [9-1:0]            i_addr_a,
-    input        [9-1:0]            i_addr_b, 
+    input        [16-1:0]            i_addr_a,
+    input        [16-1:0]            i_addr_b, 
     input        [31:0]             i_wdata_a,
     input        [31:0]             i_wdata_b,
     input        [3:0]              i_bmask_a, 
@@ -15,7 +15,7 @@ module dual_port_mem #(
     output logic [31:0]             o_rdata_a, 
     output logic [31:0]             o_rdata_b
 );
-    localparam ADDR = 512;
+    localparam ADDR = 65536;
     logic [31:0] mem [ADDR-1:0]; 
     
    // initial begin 

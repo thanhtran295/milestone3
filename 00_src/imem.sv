@@ -7,7 +7,7 @@ module imem(
 );
     memory imem_inst (
         .i_clk         (i_clk), 
-        .i_reset       (1'b0), 
+        .i_reset       (i_reset), 
         .i_addr        ({2'b00,i_addr[31:2]}),
         .i_wdata       ('0),
         .i_bmask       ('0), 
