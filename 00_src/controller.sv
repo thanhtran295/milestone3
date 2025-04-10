@@ -61,8 +61,8 @@ module controller(
                                LUI_TYPE         =   7'b0110111, 
                                AUIPC_TYPE       =   7'b0010111} inst_type; 
     
-//    inst_type opcode ;
-    logic [6:0] opcode; 
+    inst_type opcode ;
+//    logic [6:0] opcode; 
     logic [3:0] alu_op; 
     logic       pc_sel_branch;
     
@@ -139,7 +139,7 @@ module controller(
             JALR_TYPE: begin 
                  o_alu_op        =      ADD;
                  o_reg_wen       =      1'b1;
-                 o_alu_a_sel     =      2'b01; 
+                 o_alu_a_sel     =      2'b00; 
                  o_alu_b_sel     =      1'b1;
                  o_imm_sel       =      IMM_I_TYPE;
                  o_wb_sel        =      2'b10;
