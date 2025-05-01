@@ -14,6 +14,8 @@ module lsu_tb;
     logic [6:0]  io_hex [0:7];
     logic [31:0] io_sw = 32'hDEADBEEF;
     logic [31:0] data_in; 
+    int passed = 0;
+    int failed = 0;  
 
 lsu dut (
     .i_clk(clk),
@@ -32,9 +34,48 @@ lsu dut (
     );
 
 always #5 clk = ~clk;
+task str_ld_cmp(input [31:0] a, input [31:0] d, input [1:0] sz, input u);
+    logic [31:0] mem_addr, data_expect, data_H, data_L; 
+    $display("===================");
+    $display("Case %d", passed+failed+1);
+     
+    store(a,d,sz); 
+    load(a,sz,u);
 
+    case (sz)
+    2'b00: begin
+        if (u) begin 
+            data_expect = {{24{d[7]}},d[7:0]};
+        end else begin 
+            data_expect = {{24{0}},d[7:0]};
+        end 
+        $display("Expected BYTE [%h] = %h", a, data_expect);
+    end 
+    2'b01: begin 
+        if (u) begin 
+            data_expect = {{16{d[15]}},d[15:0]};
+        end else begin 
+            data_expect = {{16{0}},d[15:0]};
+        end
+        $display("Expected HW [%h] = %h", a, data_expect);
+    end 
+    2'b10: begin 
+        data_expect = d; 
+        $display("Expected W [%h] = %h", a, data_expect);
+    end 
+    endcase
+    if (ld_data == data_expect) begin  
+        $display("PASS: [%h] = %h", a, ld_data);
+        passed++;
+    end else begin
+        $display("FAILED: [%h] = %h", a, ld_data);
+        $display("Time: %d", $time);
+        failed++;
+    end
+   
+endtask
 
-task store(input [31:0] a, input [31:0] d, input [1:0] sz);
+task store(input [31:0] a, input [31:0] d, input [1:0] sz);  
     addr = a;
     st_data = d;
     size = sz;
@@ -70,124 +111,51 @@ initial begin
         // Store Word aligned
         for (int i = 0; i < 4*10; i=i+4) begin 
             data_in = $random; 
-            store(i, data_in, 2'b10);
+            str_ld_cmp(i, data_in, 2'b10, 1);
         end 
         // Store Haft-Word aligned
         for (int i = 40; i < (40 +2*10); i=i+2) begin 
             data_in = $random; 
-            store(i, data_in, 2'b01);
+            str_ld_cmp(i, data_in, 2'b01, 1);
         end 
         for (int i = 60; i < (60 + 10); i=i+1) begin 
             data_in = $random; 
-            store(i, data_in, 2'b00);
-        end
-        // Load Word
-        for (int i = 0; i < 4*10; i=i+4) begin 
-            load(i, 2'b10, 0);
-        end 
-        // Load Half-Word aligned
-        for (int i = 40; i < (40 +2*10); i=i+2) begin 
-            load(i, 2'b01, 0);
-        end 
-        // Load Byte aligned
-        for (int i = 60; i < (60 + 12); i=i+1) begin 
-            load(i, 2'b00, 0);
+            str_ld_cmp(i, data_in, 2'b00, 1);
         end
         
         for (int i = 0; i < 4*10; i=i+4) begin 
-            load(i, 2'b10, 1);
+            data_in = $random; 
+            str_ld_cmp(i, data_in, 2'b10, 0);
         end 
         // Store Haft-Word aligned
         for (int i = 40; i < (40 +2*10); i=i+2) begin 
-            load(i, 2'b01, 1);
+            data_in = $random; 
+            str_ld_cmp(i, data_in, 2'b01, 0);
         end 
-        for (int i = 60; i < (60 + 12); i=i+1) begin 
-            load(i, 2'b00, 1);
+        for (int i = 60; i < (60 + 10); i=i+1) begin 
+            data_in = $random; 
+            str_ld_cmp(i, data_in, 2'b00, 0);
         end
 
-        for (int i = 40; i < 60; i=i+4) begin 
-            load(i, 2'b10, 0);
-        end
-        for (int i = 60; i < 72; i=i+4) begin 
-            load(i, 2'b10, 0);
-        end
-
-        data_in = $random; 
-        store(32'h1000_0000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1000_1000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1000_2000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1000_3000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1000_4000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1001_0000, data_in, 2'b10);
-         @(posedge clk);
-        load(32'h1001_0000, 2'b10, 0);
-                data_in = $random; 
-        store(32'h1000_0000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1000_1000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1000_2000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1000_3000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1000_4000, data_in, 2'b10);
-        data_in = $random; 
-        store(32'h1001_0000, data_in, 2'b10);
-         @(posedge clk);
-        load(32'h1001_0000, 2'b10, 0);
-        
         $display("==== Misaligned check ====");
         for (int i = 100; i < 110; i=i+1) begin 
             data_in = $random; 
-            store(i, data_in, 2'b00);
+            str_ld_cmp(i, data_in, 2'b10, 1);
         end
         for (int i = 121; i < 130; i=i+2) begin 
             data_in = $random; 
-            store(i, data_in, 2'b01);
+            str_ld_cmp(i, data_in, 2'b01, 0);
         end
         for (int i = 200; i < 250; i=i+5) begin 
             data_in = $random; 
-            store(i, data_in, 2'b01);
+            str_ld_cmp(i, data_in, 2'b01, 0);
         end
         
-        for (int i = 100; i < 110; i=i+1) begin 
-            data_in = $random; 
-            load(i, 2'b00,1);
-        end
-        for (int i = 121; i < 130; i=i+2) begin 
-            data_in = $random; 
-            load(i, 2'b01, 1);
-        end
-        for (int i = 200; i < 250; i=i+5) begin 
-            data_in = $random; 
-            load(i, 2'b10, 1);
-        end
-        for (int i = 100; i < 110; i=i+1) begin 
-            data_in = $random; 
-            load(i, 2'b00,0);
-        end
-        for (int i = 121; i < 130; i=i+2) begin 
-            data_in = $random; 
-            load(i, 2'b01, 0);
-        end
-        for (int i = 200; i < 250; i=i+5) begin 
-            data_in = $random; 
-            load(i, 2'b10, 0);
-        end
-        for (int i = 300; i < 340; i=i+1) begin 
-            data_in = $random; 
-            store(i, data_in, 2'b00);
-        end
-        for (int i = 300; i < 340; i=i+5) begin  
-            load(i, 2'b10, 0);
-        end
 
         $display("==== Done ====");
+        $display("PASS: %d",passed);
+        $display("FAIL: %d",failed);
+
         $finish;
 end  
 

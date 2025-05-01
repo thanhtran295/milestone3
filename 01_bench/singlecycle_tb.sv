@@ -8,7 +8,15 @@ module singlecycle_tb;
     logic            o_insn_vld       ;
     logic [31:0]     o_io_ledr        ;
     logic [31:0]     o_io_ledg        ;
-    logic [6:0]      o_io_hex07 [0:7] ; 
+//    logic [6:0]      o_io_hex07 [0:7] ; 
+    logic [6:0]      o_io_hex0;
+    logic [6:0]      o_io_hex1;
+    logic [6:0]      o_io_hex2;
+    logic [6:0]      o_io_hex3;
+    logic [6:0]      o_io_hex4;
+    logic [6:0]      o_io_hex5;
+    logic [6:0]      o_io_hex6;
+    logic [6:0]      o_io_hex7;
     logic [31:0]     o_io_lcd         ; 
     logic [31:0]     i_io_sw          ;
 
@@ -19,7 +27,14 @@ singlecycle dut (
     .o_insn_vld(o_insn_vld)  ,
     .o_io_ledr(o_io_ledr)    ,
     .o_io_ledg(o_io_ledg)    ,
-    .o_io_hex07(o_io_hex07)  , 
+    .o_io_hex0(o_io_hex0)    , 
+    .o_io_hex1(o_io_hex1)    ,
+    .o_io_hex2(o_io_hex2)    ,
+    .o_io_hex3(o_io_hex3)    ,
+    .o_io_hex4(o_io_hex4)    ,
+    .o_io_hex5(o_io_hex5)    ,
+    .o_io_hex6(o_io_hex6)    ,
+    .o_io_hex7(o_io_hex7)    ,
     .o_io_lcd(o_io_lcd)      , 
     .i_io_sw(i_io_sw)        
     );
@@ -32,12 +47,14 @@ initial begin
         i_reset = 1; 
         @(posedge i_clk);
         i_reset = 0;
-        i_io_sw = 32'h0000_0000; 
+        i_io_sw = 32'h0000_0003; 
         repeat(15) @(posedge i_clk);
         // Store Word aligned
         repeat(8000) @(posedge i_clk);
         $finish;
 end  
+
+
 
 initial begin
     $dumpfile("wave.vcd");         // Tên file FSDB output

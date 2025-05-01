@@ -17,7 +17,7 @@ module aludecode(
     
     
     localparam R_TYPE           =   7'b0110011; 
-    localparam R_TYPE_IMM       =   7'b0010011;
+   // localparam R_TYPE_IMM       =   7'b0010011;
     logic [3:0] sr; 
     assign sr = (i_funct7) ? SRA : SRL; 
     always_comb begin 

@@ -12,4 +12,5 @@ module pc(
             pc_curr <= pc_next;
         end 
     end 
-endmodule 
+endmodule
+

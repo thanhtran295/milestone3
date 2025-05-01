@@ -10,32 +10,15 @@ module memory #(
     input                           i_wren, 
     output logic [31:0]             o_rdata
 );
-    localparam ADDR = 512;
-    logic [31:0] mem [0:ADDR-1]; 
-    logic [31:0] o_rdata_temp; 
-    always_ff @(posedge i_clk) begin
-        o_rdata_temp = mem[i_addr]; 
-    //     if (i_reset) begin 
-    //         for (int i = 0; i < ADDR; i++) begin 
-    //             mem[i] <= 0;
-    //         end 
-    //     end 
-    //     else if (i_wren) begin 
-    //         for (int ii = 0; ii < 4; ii++) begin 
-    //             if (i_bmask[ii]) begin
-    //                 mem[i_addr][ii*8 +: 8] <= i_wdata[ii*8 +: 8]; 
-    //             end 
-    //         end 
-    //     end 
-    end 
-    
-    assign o_rdata = o_rdata_temp;
+    localparam ADDR = 64000;
+    logic [31:0] mem [ADDR-1:0]; 
+        
+    assign o_rdata = mem[i_addr];
     
     initial begin 
-        //`ifdef THANH_TB
-        $readmemh("F:/DATA/Study/SEM3/VXL/milestone2/milestone2/00_src/test.hex", mem);
-        //`else 
         //$readmemh("E:/TK_VXL/SingleCycle_RICSV/project_1/project_1.srcs/sources_1/new/asm_code.mem", mem);
-        //`endif 
+        //$readmemh("/home/cpa/ca301/sc-test/02_test/isa.mem", mem);
+        $readmemh("F:/DATA/Study/SEM3/VXL/milestone2/milestone2/00_src/test.hex", mem);
     end
-endmodule 
+endmodule
+

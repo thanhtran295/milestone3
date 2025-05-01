@@ -55,10 +55,10 @@
         .i_clk       (i_clk),
         .i_reset     (i_reset),
         .o_pc_debug  (o_pc_debug),
-        .o_insn_vld  (o_insn_vld),
+//        .o_insn_vld  (o_insn_vld),
         .o_io_ledr   (o_io_ledr),
         .o_io_ledg   (o_io_ledg),
-        .o_io_hex07  (o_io_hex07),
+//        .o_io_hex07  (o_io_hex07),
         .o_io_lcd    (o_io_lcd),
         .i_io_sw     (i_io_sw)
       );

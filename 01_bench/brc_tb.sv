@@ -5,7 +5,7 @@ module brc_tb;
    logic        i_br_un   ; // i_br_un = 0 --> unsigned ; i_br_un = 1 --> signed
    logic        o_br_less ; // less result
    logic        o_br_equal; // equal result 
-
+   int pass, fail; 
     // Instantiate the full adder
     brc uut (
         .i_rs1_data(a), 
@@ -21,6 +21,8 @@ initial begin
     sltu_case();
     slt_case(); 
     equal_case();
+    $display("Total PASS: %d",pass); 
+    $display("Total FAIL: %d", fail);
 end
 
 task slt_case();
@@ -38,9 +40,11 @@ task slt_case();
         #5;
         if (sum_exp == o_br_less) begin 
             $display("PASS: actual=%h, expected=%h", o_br_less, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", o_br_less, sum_exp);
+            fail++;
         end   
     end   
     $display("End SLT signed operation check");
@@ -57,9 +61,11 @@ task sltu_case();
         #5;
         if (sum_exp == o_br_less) begin 
             $display("PASS: actual=%h, expected=%h", o_br_less, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", o_br_less, sum_exp);
+            fail++;
         end
     end  
     $display("End SLTU operation check");
@@ -77,9 +83,11 @@ task equal_case();
         #5;
         if (sum_exp == o_br_equal) begin 
             $display("PASS: actual=%h, expected=%h", o_br_equal, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", o_br_equal, sum_exp);
+            fail++;
         end
     end   
     $display("End Equal operation check");

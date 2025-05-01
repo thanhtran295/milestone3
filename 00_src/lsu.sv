@@ -14,6 +14,7 @@ module lsu (
     output logic [31:0] o_io_lcd,
     input  logic [31:0] i_io_sw
 );
+    logic [31:0] aligned_addr;
     logic [1:0]  byte_offset;
     logic [31:0] mem_addr;
     logic [31:0] mem_addr_a;
@@ -38,10 +39,7 @@ module lsu (
     logic [31:0] r_ledg;
     logic [31:0] r_lcd ; 
 
-initial begin 
-    r_data_a = 0; 
-    r_data_b = 0; 
-end 
+
 //Instant memory model 
 dual_port_mem dmem_0 (
         .i_clk           (i_clk), 
@@ -138,54 +136,44 @@ dual_port_mem dmem_0 (
             end
         end 
     end 
-	logic [31:0] i_st_data_byte; 
-	logic [31:0] o_ld_data_byte; 
-	logic [3:0]	 mem_bmask_byte; 
-	 always_comb  begin
-		i_st_data_byte = 32'b0;
-		mem_bmask_byte = 4'b0;
-		o_ld_data_byte = 32'b0; 
-		case(byte_offset)
-			2'b00: begin 
-				i_st_data_byte = {24'b0,i_st_data[7:0]}; 
-				mem_bmask_byte = 4'b0001; 
-				o_ld_data_byte = {{24{i_lsu_signed & r_data[7]}}, r_data[7:0]}	;	
-			end 
-			2'b01: begin 
-				i_st_data_byte = {16'b0,i_st_data[7:0],8'b0}; 
-				mem_bmask_byte = 4'b0010; 
-				o_ld_data_byte = {{24{i_lsu_signed & r_data[15]}}, r_data[15:8]};		
-			end 
-			2'b10: begin 
-				i_st_data_byte = {8'b0,i_st_data[7:0],16'b0}; 
-				mem_bmask_byte = 4'b0100; 
-				o_ld_data_byte = {{24{i_lsu_signed & r_data[23]}}, r_data[23:16]} ; 
-			end 
-			2'b11: begin 
-				i_st_data_byte = {i_st_data[7:0],24'b0}; 
-				mem_bmask_byte = 4'b1000; 
-				o_ld_data_byte = {{24{i_lsu_signed & r_data[31]}}, r_data[31:24]}; 
-			end 
-		endcase 
-	 end 
+
+    assign aligned_addr = {i_lsu_addr[31:2], 2'b00};
     assign byte_offset  = i_lsu_addr[1:0];
-    assign mem_addr = {2'b0, i_lsu_addr[31:2]};// ?????????
+    // assign mem_addr = {2'b0, i_lsu_addr[31:2]};// ?????????
+     assign mem_addr = {2'b0, i_lsu_addr[31:2]};// ?????????
+//    assign mem_addr = {i_lsu_addr[31:2], 2'b00};
     // Write Mem logic 
     always_comb begin 
-       case (i_lsu_size)
-          2'b00: begin // store byte 
-				i_st_data_temp = i_st_data_byte;
-            mem_bmask = mem_bmask_byte; 
-          end
-          2'b01: begin // store half-word
-            mem_bmask = (byte_offset[1] == 1'b1) ? (4'b1100) : (4'b0011);
-            i_st_data_temp = (byte_offset[1] == 1'b1) ? {i_st_data[31:16], 16'b0} : {16'b0,i_st_data[15:0]};
-          end
-          default: begin 
-            mem_bmask = 4'b1111;
-			i_st_data_temp = i_st_data; 
-          end 
-       endcase
+//        if (i_lsu_addr >= 32'h0000_0000 && i_lsu_addr <= 32'h0000_07FF) begin
+        if (i_lsu_addr <= 32'h0000_7FFF) begin
+            i_st_data_temp = i_st_data;
+            case (i_lsu_size)
+                2'b00: begin // store byte 
+                i_st_data_temp = (byte_offset == 2'b00) ? {24'b0,i_st_data[7:0]} : 
+                                 (byte_offset == 2'b01) ? {16'b0,i_st_data[7:0],8'b0} : 
+                                 (byte_offset == 2'b10) ? {8'b0,i_st_data[7:0],16'b0} :
+                                 (byte_offset == 2'b11) ? {i_st_data[7:0],24'b0} : {24'b0,i_st_data[7:0]};
+
+                mem_bmask = (byte_offset == 2'b00) ? (4'b0001) : 
+                            (byte_offset == 2'b01) ? (4'b0010) : 
+                            (byte_offset == 2'b10) ? (4'b0100) :
+                            (byte_offset == 2'b11) ? (4'b1000) : (4'b0001); 
+                end
+                2'b01: begin // store half-word
+                mem_bmask = (byte_offset[1] == 1'b0) ? (4'b0011) : 
+                            (byte_offset[1] == 1'b1) ? (4'b1100) : (4'b0011);
+                i_st_data_temp = (byte_offset[1] == 1'b0) ? {16'b0,i_st_data[15:0]} : 
+                                 (byte_offset[1] == 1'b1) ? {i_st_data[15:0], 16'b0} : {16'b0,i_st_data[15:0]};
+                end
+                default: begin 
+                mem_bmask = 4'b1111;
+					 i_st_data_temp = i_st_data; 
+                end 
+            endcase
+        end else begin 
+            mem_bmask = 4'b0000;
+			   i_st_data_temp = i_st_data;	
+        end 
     end
 
 //Write PIO register 
@@ -196,18 +184,21 @@ dual_port_mem dmem_0 (
             r_lcd  <= 0;
             r_seven_seg_0 <= 0;
             r_seven_seg_1 <= 0;
-            r_switch  <= 0; 
-        end else if (i_lsu_wren) begin
+          //  r_switch  <= 0; 
+        end else begin 
+	 if (i_lsu_wren) begin
             case (i_lsu_addr)
                 32'h1000_0000: r_ledr <= i_st_data;
                 32'h1000_1000: r_ledg <= i_st_data;
                 32'h1000_2000: r_seven_seg_0 <= i_st_data;
                 32'h1000_3000: r_seven_seg_1 <= i_st_data;
                 32'h1000_4000: r_lcd   <= i_st_data;
-                32'h1001_0000: r_switch <= i_io_sw; 
             endcase
-        end
+         end
+      end 
     end
+
+    assign r_switch = i_io_sw;
     assign o_io_lcd = {r_lcd[31],20'b0,r_lcd[10:0]};
     assign o_io_ledg = {24'b0,r_ledg[7:0]}; 
     assign o_io_ledr = {15'b0,r_ledr[16:0]};
@@ -223,11 +214,16 @@ dual_port_mem dmem_0 (
 
     // Read logic
     always_comb begin
-        if (i_lsu_addr >= 32'h0000_0000 && i_lsu_addr <= 32'h0000_07FF) begin
+        o_ld_data = 32'd0;
+//        if (i_lsu_addr >= 32'h0000_0000 && i_lsu_addr <= 32'h0000_07FF) begin
+          if (i_lsu_addr <= 32'h0000_7FFF) begin
             case (i_lsu_size)
                 2'b00: begin // load byte
                 //mem_addr =  mem[aligned_addr[10:2]][8*byte_offset +: 8] <= i_st_data[7:0];
-                    o_ld_data = o_ld_data_byte;
+                    o_ld_data = (byte_offset == 2'b00) ? {{24{i_lsu_signed & r_data[7]}}, r_data[7:0]} :
+                                (byte_offset == 2'b01) ? {{24{i_lsu_signed & r_data[15]}}, r_data[15:8]} :
+                                (byte_offset == 2'b10) ? {{24{i_lsu_signed & r_data[23]}}, r_data[23:16]} :
+                                                         {{24{i_lsu_signed & r_data[31]}}, r_data[31:24]};
                 end
                 2'b01: begin // load half-word
                     o_ld_data = (byte_offset[1] == 1'b1) ? {{16{i_lsu_signed&r_data[31]}},r_data[31:16]} : {{16{i_lsu_signed&r_data[15]}},r_data[15:0]}; 
@@ -239,9 +235,18 @@ dual_port_mem dmem_0 (
                     o_ld_data = r_data;
                 end 
             endcase
-        end else begin
-            o_ld_data = r_switch;
-        end 
+    end else begin 
+            case (i_lsu_addr)
+                32'h1000_0000: o_ld_data = r_ledr;
+                32'h1000_1000: o_ld_data = r_ledg;
+                32'h1000_2000: o_ld_data = r_seven_seg_0;
+                32'h1000_3000: o_ld_data = r_seven_seg_1;
+                32'h1000_4000: o_ld_data = r_lcd;
+                32'h1001_0000: o_ld_data = r_switch;
+		default o_ld_data = r_data; 
+            endcase
+
+    end  
     end
 
 endmodule

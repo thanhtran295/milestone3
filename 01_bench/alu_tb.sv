@@ -4,6 +4,7 @@ module alu_tb;
    logic [31:0] b; // Second operand
    logic [3:0]  alu_op;    // ALU operation selector
    logic [31:0] alu_data;   // ALU result 
+   int pass, fail; 
     // Instantiate the full adder
     alu uut (
         .i_operand_a(a), 
@@ -15,6 +16,8 @@ module alu_tb;
 logic [31:0] sum_exp; 
 
 initial begin
+    pass =0 ; 
+    fail = 0 ; 
     add_case(); 
     sub_case();
     slt_case();
@@ -25,6 +28,8 @@ initial begin
     sll_case();
     srl_case();
     sra_case(); 
+    $display("Total PASS: %d",pass); 
+    $display("Total FAIL: %d", fail);
 end
 
 task add_case();
@@ -37,9 +42,11 @@ task add_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end    
     $display("End ADD operation check");
@@ -55,9 +62,11 @@ task sub_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end      
     $display("End SUB operation check");
@@ -78,9 +87,11 @@ task slt_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end   
     end   
     $display("End SLT operation check");
@@ -97,9 +108,11 @@ task sltu_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end  
     $display("End SLTU operation check");
@@ -114,9 +127,11 @@ task xor_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end    
     $display("End XOR operation check");
@@ -132,9 +147,11 @@ task or_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end    
     $display("End OR operation check");
@@ -150,9 +167,11 @@ task and_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end    
     $display("End AND operation check");
@@ -168,9 +187,11 @@ task sll_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end    
     $display("End SLL operation check");
@@ -186,9 +207,11 @@ task srl_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end    
     $display("End SRL operation check");
@@ -206,9 +229,11 @@ task sra_case();
         #5;
         if (sum_exp == alu_data) begin 
             $display("PASS: actual=%h, expected=%h", alu_data, sum_exp);
+            pass++;
         end 
         else begin 
             $display("FAIL: actual=%h, expected=%h", alu_data, sum_exp);
+            fail++;
         end
     end   
     $display("End SRA operation check");
