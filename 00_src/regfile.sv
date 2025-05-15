@@ -25,9 +25,28 @@ module regfile (
             end 
         end 
     end 
- 
-    assign o_rs1_data = (i_rs1_addr == 5'd0) ? 32'd0 : reg_mem[i_rs1_addr];
-    assign o_rs2_data = (i_rs2_addr == 5'd0) ? 32'd0 : reg_mem[i_rs2_addr];
+        
+     // read_write same address => bypass
+     always_comb begin 
+        if (i_rd_wren && (i_rs1_addr==i_rd_addr) && (i_rs1_addr!=0)) begin
+            o_rs1_data = i_rd_data;
+        end 
+        else begin 
+            o_rs1_data = (i_rs1_addr == 5'd0) ? 32'd0 : reg_mem[i_rs1_addr];
+        end 
+     end
+     
+     
+    always_comb begin 
+        if (i_rd_wren && (i_rs2_addr==i_rd_addr) && (i_rs2_addr!=0)) begin
+            o_rs2_data = i_rd_data;
+        end 
+        else begin 
+            o_rs2_data = (i_rs2_addr == 5'd0) ? 32'd0 : reg_mem[i_rs2_addr];
+        end 
+     end
+//    assign o_rs1_data = (i_rs1_addr == 5'd0) ? 32'd0 : reg_mem[i_rs1_addr];
+//    assign o_rs2_data = (i_rs2_addr == 5'd0) ? 32'd0 : reg_mem[i_rs2_addr];
         
 endmodule
 

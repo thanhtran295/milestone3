@@ -1,4 +1,4 @@
-module hazard_unit_always_non_taken (
+module HazardUnit (
     input  logic       i_clk, i_reset,
     input  logic [6:0] opcodeIF, // opcode from IF stage
     input  logic [6:0] opcodeEX,
@@ -15,11 +15,10 @@ module hazard_unit_always_non_taken (
     output logic       stallD,
     output logic       flushD,           
     output logic       flushE,       
-    output logic       flusMEM, 
+    output logic       flushMEM, 
     output logic [1:0] forward_a, forward_b     
 );
 
-    
     localparam B_TYPE           =   7'b1100011;
     localparam J_TYPE           =   7'b1101111;
     localparam JALR_TYPE        =   7'b1100111;
@@ -44,13 +43,13 @@ module hazard_unit_always_non_taken (
     wire lwStall = (wb_sel==2'b00) && ((ex_rd == rs1D) || (ex_rd == rs2D)) && (ex_rd != 0);
 
     // ========== Branch Stall ==========
-
+    wire branchFlush = pc_sel_ex; 
     // ========== Control signals ==========
 
     assign stallD = lwStall; // stall the decode stage if there is a hazard
-    assign stallF = lwStall | branchStall_IF;
+    assign stallF = lwStall;
     assign flushD = branchFlush;
     assign flushE = lwStall | branchFlush;
-    assign flusMEM =  branchFlush;
+    assign flushMEM = 0 ;
 
 endmodule

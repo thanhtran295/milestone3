@@ -1,4 +1,4 @@
-module pc(
+module pc_ff(
     input                    i_clk, 
     input                    i_reset,
     input                    i_stall, 

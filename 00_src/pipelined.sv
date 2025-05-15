@@ -27,7 +27,7 @@ module pipelined(
     logic [31:0]    alu_opa, alu_opb;
     logic [31:0]    imm;
     logic [31:0]    dmem_rdata, dmem_wdata; 
-    logic [6:0]      o_io_hex07  [0:7];
+    logic [6:0]     o_io_hex07  [0:7];
     
     //Control signals wires 
     logic [1:0]     alu_a_sel; 
@@ -74,11 +74,14 @@ module pipelined(
 //    MEM/WB: ALU, mem, PC+4, instruction
 
     //=============================================INSTRUCTION MEMORY====================================
+    logic [31:0] sram_addr; 
+    logic        sram_addr_valid;
+    
     sram_single_port imem_inst (
            .i_clk       (i_clk), 
            .i_reset     (i_reset),
-           .i_addr      ({2'd0, pc_if[31:2]}), 
-           .i_cs        (~stall_IF  ),
+           .i_addr      ({2'd0, sram_addr[31:2]}), 
+           .i_cs        (sram_addr_valid),
            .i_wdata     (32'd0),
            .i_wren      (1'b0),
            .i_bmask     (4'b1111), 
@@ -87,66 +90,59 @@ module pipelined(
 
     
     //=============================================STAGE IF====================================
-    //assign inst_if = imem_IF_reg.inst;
-    assign o_ctrl = 1; 
-    assign o_mispred = 1; 
+
     logic pc_sel_if; 
-    inst_type opcde_if;
+    // inst_type opcode_if;
+    logic inst_valid_if;
     logic [31:0] pc_if_delay;
 
-    // pc_ff pc_inst (
-    //       .i_clk       (i_clk), 
-    //       .i_reset     (i_reset), 
-    //       .i_stall     (stall_IF),   
-    //       .pc_next     (pc_next),
-    //       .pc_curr     (pc)
-    // );
 
-     always_ff @(posedge i_clk, posedge i_reset) begin 
-        if (i_reset) begin 
-            pc_if <= 0; 
-        end 
-        else if (~stall_IF) begin 
-            pc_if <= pc_next; 
-        end 
-     end
+    PrefetchBuffer #(
+        .ADDR_WIDTH(32), 
+        .DATA_WIDTH(32),
+        .DEPTH(2)
+    ) prefetch_buffer_inst (
+        .clk               (i_clk),
+        .reset             (i_reset),
 
-     assign pc_plus_4 = pc_if + 32'd4;
-     assign pc_next = pc_sel_if ? alu_out : pc_plus_4; 
-     assign pc_sel_if = pc_sel;
-//    assign pc_next = pc_sel ? alu_out : pc + 32'd4; 
-//    assign o_pc_debug = pc; 
+        .pc_current        (pc_if),
+        .pc_stall          (stall_IF),
+        .branch_flush      (flush_ID),
+        .branch_target     (pc_next),
 
-    // assign inst_if= imem_data_out;
-    skid_buffer skid_buffer_inst (
-        .i_clk        (i_clk), 
-        .i_reset      (i_reset),
-        .i_data_in    (imem_data_out),
-        .i_bypass     (~stall_IF),
-        .o_data_out   (inst_if)
+        .sram_addr         (sram_addr),
+        .sram_valid        (1'b1), 
+        .sram_req          (sram_addr_valid),
+        .sram_data         (imem_data_out),
+
+    
+        .inst_out          (inst_if),
+        .inst_valid        (inst_valid_if) 
     );
+
 
     always_ff @(posedge i_clk, posedge i_reset) begin 
         if (i_reset) begin 
-            pc_if_delay <= 0; 
+            pc_if <= 0; 
         end 
-        else if (~stall_IF) begin 
-            pc_if_delay <= pc_if; 
+        else if (~stall_IF && inst_valid_if) begin 
+            pc_if <= pc_next; 
         end 
     end
 
+    assign pc_plus_4 = pc_if + 32'd4;
+    assign pc_next = pc_sel_if ? alu_out : pc_plus_4; 
+    assign pc_sel_if = pc_sel;
+
+    inst_type opcode_if;
+
     always_comb begin 
-        opcde_if = inst_type'(inst_if[6:0]); 
+        opcode_if = inst_type'(inst_if[6:0]); 
     end
+
     
     // ==============================BRANCH PREDICTION LOGIC=======================
 
-//    imem imem_inst (
-//          .i_clk        (i_clk), 
-//          .i_reset      (i_reset),
-//          .i_addr       (pc),
-//          .o_rdata      (inst)
-//    );
 
 
     //=============================================PIPELINE REG====================================
@@ -164,9 +160,9 @@ module pipelined(
         else if (flush_ID) begin 
             reg_IF_ID <= 0; 
         end 
-        else if (~stall_ID) begin 
+        else if (~stall_ID && inst_valid_if) begin 
             reg_IF_ID <= '{
-                           pc: pc_if_delay, 
+                           pc: pc_if, 
                            inst: inst_if
                            }; 
         end
@@ -175,6 +171,7 @@ module pipelined(
     //=============================================STAGE ID====================================
     
     wire [31:0] inst_id = reg_IF_ID.inst;
+    // wire [31:0] inst_id = flush_ID ? 0 : inst_if; // for debugging purpose
     wire [31:0] pc_id   = reg_IF_ID.pc;
     
     //internal control signals
@@ -189,7 +186,6 @@ module pipelined(
     logic [1:0]  wb_sel_id; 
     logic [1:0]  lsu_size_id;
     logic        insn_vld_id;
-    logic        lsu_signed_id; 
 
 
     regfile regfile_inst(
@@ -235,10 +231,10 @@ module pipelined(
     
     //DEBUG ONLY this logic will be removed when running synthesis
 
-    inst_type opcde_id;
+    inst_type opcode_id;
 
     always_comb begin 
-        opcde_id = inst_type'(inst_id[6:0]); 
+        opcode_id = inst_type'(inst_id[6:0]); 
     end
 
     //=============================================PIPELINE REG====================================
@@ -418,10 +414,10 @@ module pipelined(
     );
 
     //DEBUG ONLY this logic will be removed when running synthesis
-    inst_type opcde_ex;
+    inst_type opcode_ex;
 
     always_comb begin 
-        opcde_ex = inst_type'(inst_ex[6:0]); 
+        opcode_ex = inst_type'(inst_ex[6:0]); 
     end
 
     //=============================================PIPELINE REG====================================
@@ -446,7 +442,7 @@ module pipelined(
         if (i_reset) begin 
             reg_EX_MEM <= '0;
         end 
-        else if (flush_EX) begin 
+        else if (flush_MEM) begin 
             reg_EX_MEM <= '0; 
         end 
         else begin 
@@ -524,10 +520,10 @@ module pipelined(
 //    assign write_back_data  = wb_sel ? alu_out : dmem_rdata ;
 
     //DEBUG ONLY this logic will be removed when running synthesis
-    inst_type opcde_mem;
+    inst_type opcode_mem;
 
     always_comb begin 
-        opcde_mem = inst_type'(inst_mem[6:0]); 
+        opcode_mem = inst_type'(inst_mem[6:0]); 
     end
 
     //=============================================PIPELINE REG====================================
@@ -621,12 +617,11 @@ module pipelined(
         endcase
     end 
 
-
     //DEBUG ONLY this logic will be removed when running synthesis
-    inst_type opcde_wb;
+    inst_type opcode_wb;
 
     always_comb begin 
-        opcde_wb = inst_type'(inst_wb[6:0]); 
+        opcode_wb = inst_type'(inst_wb[6:0]); 
     end
 
     //IO assignment
@@ -644,10 +639,11 @@ module pipelined(
     assign o_io_hex7 = io_hex7_wb;
     assign o_pc_debug = pc_wb;
     assign o_insn_vld = insn_vld_wb;
+    assign o_pc_debug = pc_wb;
 
     // ======================================HAZARD CONTROLLER UNIT====================================
 
-    hazard_unit_always_stall hazard_unit_inst (
+    HazardUnit hazard_unit_inst (
         .i_clk         (i_clk),
         .i_reset       (i_reset),
         .opcodeIF      (inst_if[6:0]), // opcode from IF stage
@@ -671,8 +667,9 @@ module pipelined(
         .pc_sel_ex     (pc_sel),
         .stallF        (stall_IF), 
         .stallD        (stall_ID), 
-        .flushD        (flush_ID),
         .flushE        (flush_EX), 
+        .flushD        (flush_ID),
+        .flushMEM     (flush_MEM),
         .forward_a     (forward_a), 
         .forward_b     (forward_b) 
     );

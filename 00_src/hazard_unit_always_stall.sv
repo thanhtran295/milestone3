@@ -1,4 +1,4 @@
-module hazard_unit_always_stall (
+module HazardUnit_always_stall (
     input  logic       i_clk, i_reset,
     input  logic [6:0] opcodeIF, // opcode from IF stage
     input  logic [6:0] opcodeEX,
@@ -15,11 +15,10 @@ module hazard_unit_always_stall (
     output logic       stallD,
     output logic       flushD,           
     output logic       flushE,       
-//    output logic       flushMEM, 
+    output logic       flushMEM, 
     output logic [1:0] forward_a, forward_b     
 );
 
-    
     localparam B_TYPE           =   7'b1100011;
     localparam J_TYPE           =   7'b1101111;
     localparam JALR_TYPE        =   7'b1100111;
@@ -71,6 +70,6 @@ module hazard_unit_always_stall (
     assign stallF = lwStall | branchStall_IF;
     assign flushD = branchFlush;
     assign flushE = lwStall | branchFlush;
-//    assign flusMEM =  branchFlush;
+    assign flushMEM =  branchFlush;
 
 endmodule

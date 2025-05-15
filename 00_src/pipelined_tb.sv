@@ -51,10 +51,10 @@ module pipelined_tb;
     // Test sequence
     initial begin
         // reset pulse
-        i_reset = 1;
-        i_io_sw = 32'h0000_0000;
-        #4;
         i_reset = 0;
+        i_io_sw = 32'h0000_0000;
+        # 7 i_reset = 1;
+        #32 i_reset = 0;
 
         // run for a while then finish
         #2000;
