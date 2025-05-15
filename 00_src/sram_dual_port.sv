@@ -17,19 +17,19 @@ module sram_dual_port #(
     output logic [31:0]             o_rdata_b
 );
 //    localparam ADDR =  1 << AW;;
-    localparam ADDR = 2000;
+    localparam ADDR = 16384;
     logic [DW-1:0] mem [ADDR-1:0]; 
     
    // initial begin 
    //     $readmemh("/mnt/hgfs/milestone2/milestone2/00_src/test.hex", mem);
    // end    
-    always_ff @(posedge i_clk, posedge i_reset) begin 
-        if (i_reset) begin 
-            for (int i = 0; i < ADDR; i++) begin 
-                mem[i] <= 0;
-            end 
-        end 
-        else begin 
+    always_ff @(posedge i_clk) begin 
+      //  if (i_reset) begin 
+      //      for (int i = 0; i < ADDR; i++) begin 
+      //          mem[i] <= 0;
+      //      end 
+      //  end 
+      //  else begin 
             if (i_wren_a) begin 
                 for (int ii = 0; ii < 4; ii++) begin 
                     if (i_bmask_a[ii]) begin
@@ -44,7 +44,7 @@ module sram_dual_port #(
                     end 
                 end 
             end 
-        end 
+    //    end 
     end 
     
     always_ff @(posedge i_clk, posedge i_reset) begin 

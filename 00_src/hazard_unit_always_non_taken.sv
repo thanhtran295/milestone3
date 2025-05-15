@@ -1,4 +1,4 @@
-module HazardUnit (
+module hazard_unit_always_non_taken (
     input  logic       i_clk, i_reset,
     input  logic [6:0] opcodeIF, // opcode from IF stage
     input  logic [6:0] opcodeEX,
@@ -19,9 +19,9 @@ module HazardUnit (
     output logic [1:0] forward_a, forward_b     
 );
 
-    localparam B_TYPE           =   7'b1100011;
-    localparam J_TYPE           =   7'b1101111;
-    localparam JALR_TYPE        =   7'b1100111;
+    //localparam B_TYPE           =   7'b1100011;
+    //localparam J_TYPE           =   7'b1101111;
+    //localparam JALR_TYPE        =   7'b1100111;
     // Forwarding Logic
     always_comb begin
         forward_a = 2'b00; // default: no forwarding

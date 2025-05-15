@@ -27,7 +27,7 @@ module pipelined(
     logic [31:0]    alu_opa, alu_opb;
     logic [31:0]    imm;
     logic [31:0]    dmem_rdata, dmem_wdata; 
-    logic [6:0]     o_io_hex07  [0:7];
+    logic [6:0]      o_io_hex07  [0:7];
     
     //Control signals wires 
     logic [1:0]     alu_a_sel; 
@@ -72,7 +72,8 @@ module pipelined(
 //    ID/EX: immediate, R[rs1], R[rs2], PC address, 32-b instruction
 //    EX/MEM: R[rs2], PC, ALU, instruction
 //    MEM/WB: ALU, mem, PC+4, instruction
-
+    assign o_ctrl = 1; 
+    assign o_mispred = 1; 
     //=============================================INSTRUCTION MEMORY====================================
     logic [31:0] sram_addr; 
     logic        sram_addr_valid;
@@ -97,7 +98,7 @@ module pipelined(
     logic [31:0] pc_if_delay;
 
 
-    PrefetchBuffer #(
+    prefetch_buffer #(
         .ADDR_WIDTH(32), 
         .DATA_WIDTH(32),
         .DEPTH(2)
@@ -186,6 +187,7 @@ module pipelined(
     logic [1:0]  wb_sel_id; 
     logic [1:0]  lsu_size_id;
     logic        insn_vld_id;
+    logic        lsu_signed_id;
 
 
     regfile regfile_inst(
@@ -637,13 +639,12 @@ module pipelined(
     assign o_io_hex5 = io_hex5_wb;
     assign o_io_hex6 = io_hex6_wb;
     assign o_io_hex7 = io_hex7_wb;
-    assign o_pc_debug = pc_wb;
     assign o_insn_vld = insn_vld_wb;
     assign o_pc_debug = pc_wb;
 
     // ======================================HAZARD CONTROLLER UNIT====================================
 
-    HazardUnit hazard_unit_inst (
+    hazard_unit_always_non_taken hazard_unit_inst (
         .i_clk         (i_clk),
         .i_reset       (i_reset),
         .opcodeIF      (inst_if[6:0]), // opcode from IF stage
@@ -669,7 +670,7 @@ module pipelined(
         .stallD        (stall_ID), 
         .flushE        (flush_EX), 
         .flushD        (flush_ID),
-        .flushMEM     (flush_MEM),
+        .flushMEM      (flush_MEM),
         .forward_a     (forward_a), 
         .forward_b     (forward_b) 
     );

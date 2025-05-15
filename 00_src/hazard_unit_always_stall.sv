@@ -1,4 +1,4 @@
-module HazardUnit_always_stall (
+module hazard_unit_always_stall (
     input  logic       i_clk, i_reset,
     input  logic [6:0] opcodeIF, // opcode from IF stage
     input  logic [6:0] opcodeEX,

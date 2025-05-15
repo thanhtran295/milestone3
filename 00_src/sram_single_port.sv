@@ -14,7 +14,7 @@ module sram_single_port #(
 );
 //    localparam ADDR = 2**AW;
 
-    localparam ADDR=100;    
+    localparam ADDR=16384;    
     logic [DW-1:0]  mem  [ADDR -1 :0]; 
     
     always_ff @(posedge i_clk, posedge i_reset) begin 
@@ -40,6 +40,6 @@ module sram_single_port #(
     end
     initial begin  
         //$readmemh("E:/TK_VXL/Pipeline_RISCV/rtl/asm_code.mem", mem);
-        $readmemh("E:/TK_VXL/Pipeline_RISCV/rtl/asm_code.mem", mem);
+        $readmemh("/mnt/f/DATA/Study/SEM3/VXL/milestone2/pl-test/02_test/isa.mem", mem);
     end 
 endmodule 
