@@ -41,7 +41,7 @@ module lsu (
 
 
 //Instant memory model 
-dual_port_mem dmem_0 (
+sram_dual_port dmem_0 (
         .i_clk           (i_clk), 
         .i_reset         (i_reset), 
         .i_addr_a        (mem_addr_a),

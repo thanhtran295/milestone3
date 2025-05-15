@@ -1,11 +1,12 @@
-module dual_port_mem #(
-    parameter   ADDR_W = 32
+module sram_dual_port #(
+    parameter  AW = 32,
+    parameter  DW = 32
 )
 (
     input                           i_clk, 
     input                           i_reset, 
-    input        [ADDR_W-1:0]       i_addr_a,
-    input        [ADDR_W-1:0]       i_addr_b, 
+    input        [AW-1:0]           i_addr_a,
+    input        [DW-1:0]           i_addr_b, 
     input        [31:0]             i_wdata_a,
     input        [31:0]             i_wdata_b,
     input        [3:0]              i_bmask_a, 
@@ -15,8 +16,9 @@ module dual_port_mem #(
     output logic [31:0]             o_rdata_a, 
     output logic [31:0]             o_rdata_b
 );
-    localparam ADDR = 65536;
-    logic [31:0] mem [ADDR-1:0]; 
+//    localparam ADDR =  1 << AW;;
+    localparam ADDR = 2000;
+    logic [DW-1:0] mem [ADDR-1:0]; 
     
    // initial begin 
    //     $readmemh("/mnt/hgfs/milestone2/milestone2/00_src/test.hex", mem);
@@ -45,8 +47,20 @@ module dual_port_mem #(
         end 
     end 
     
-    assign o_rdata_a = mem[i_addr_a];
-    assign o_rdata_b = mem[i_addr_b];
- 
+    always_ff @(posedge i_clk, posedge i_reset) begin 
+        if (i_reset) begin 
+            o_rdata_a <= 0; 
+            o_rdata_b <=0; 
+        end
+        else begin
+            if (~i_wren_a) begin 
+                o_rdata_a <= mem[i_addr_a]; 
+            end 
+            if (~i_wren_b) begin 
+                o_rdata_b <= mem[i_addr_b]; 
+            end 
+        end
+    end
 
 endmodule 
+
